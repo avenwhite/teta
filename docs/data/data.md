@@ -4,93 +4,110 @@
 
 Используется диаграмма классов UML. Документация: https://plantuml.com/class-diagram 
 -->
-
 ```plantuml
 @startuml
-' Логическая модель данных в варианте UML Class Diagram (альтернатива ER-диаграмме).
-namespace ShoppingCart {
-
- class ShoppingCart
- {
-  id : string
-  createDate : datetime
-  updateDate : datetime
-  customer : Customer
-  price : ShoppingCartPrice
-  cartItems : CartItem[]
- }
-
- class ShoppingCartPrice
- {
-  type : CartItemPrice
- }
- class CartItemPrice
- {
-  type : CartItemPriceType
- }
-
- enum CartPriceType
- {
-  total
-  grandTotal
-  offeringDiscount
-  couponsDiscount
- }
-
- class CartItem
- {
-  id : string
-  quantity : int
-  offering : Offering
-  relationship : CartItemRelationShip[]
-  price : CartItemPrice[]
-  status : CartItemStatus
- }
-
-  class Customer
- {
-  id : string
- }
- 
- class Offering
- {
-  id : string
-  isQuantifiable : boolean
-  actionType : OfferingActionType
-  validFor : ValidFor
- }
-  
- class ProductSpecificationRef
- {
-  id : string
- }
- 
- ShoppingCart *-- "1..*" ShoppingCartPrice
- ShoppingCartPrice -- CartPriceType
- ShoppingCart *-- "*" CartItem
- CartItem *-- "*" CartItemPrice
- CartItemPrice -- CartPriceType
- CartItem *-- "1" Offering
- Offering *-- "1" ProductSpecificationRef
- Offering *-- "0..1" ProductConfiguration
- ShoppingCart *-- "1" Customer
+class Conference {
+  -id: int
+  -title: string
+  -description: string
+  -location: string
+  -start_date: datetime
+  -end_date: datetime
+  -speakers: List[Speaker]
+  -program: Program
+  -feedback: List[Feedback]
+  -partners: List[Partner]
+  -audience: List[Audience]
 }
 
-namespace Ordering {
- ProductOrder *-- OrderItem
- OrderItem *-- Product
- Product *-- ProductSpecificationRef
- ProductOrder *-- Party
+class Speaker {
+  -id: int
+  -name: string
+  -email: string
+  -phone: string
+  -bio: string
+  -topics: List[string]
+  -presentations: List[Presentation]
 }
 
-namespace ProductCatalog {
- ShoppingCart.ProductSpecificationRef ..> ProductSpecification : ref
- Ordering.ProductSpecificationRef ..> ProductSpecification : ref
+class Presentation {
+  -id: int
+  -title: string
+  -description: string
+  -file: File
+  -reviewers: List[Reviewer]
 }
 
-namespace CX {
- ShoppingCart.Customer ..> Customer : ref
- Ordering.Party ..> Customer : ref
+class Reviewer {
+  -id: int
+  -name: string
+  -email: string
+  -phone: string
+  -expertise: List[string]
+  -reviews: List[Review]
 }
+
+class Review {
+  -id: int
+  -score: int
+  -comments: string
+  -reviewer: Reviewer
+}
+
+class Program {
+  -id: int
+  -sessions: List[Session]
+}
+
+class Session {
+  -id: int
+  -title: string
+  -start_time: datetime
+  -end_time: datetime
+  -presentations: List[Presentation]
+  -translation: List[Translation]
+}
+
+class Feedback {
+  -id: int
+  -score: int
+  -comments: string
+  -audience: Audience
+}
+class Partner {
+  -id: int
+  -name: string
+  -logo: File
+  -website: string
+}
+
+class Audience {
+  -id: int
+  -name: string
+  -email: string
+  -phone: string
+  -affiliation: string
+  -feedback: List[Feedback]
+}
+
+class Translation {
+  -id: int
+  -name: string
+  -type: string
+  -size: int
+}
+
+Conference -> Speaker
+Conference -> Program
+Conference -> Feedback
+Conference -> Partner
+Conference -> Audience
+Conference -> Translation
+Speaker -> Presentation
+Presentation -> Reviewer
+Reviewer -> Review
+Program -> Session
+Session -> Presentation
+Feedback -> Audience
 @enduml
 ```
