@@ -9,48 +9,38 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
+LAYOUT_WITH_LEGEND()
 AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="microservice")
 AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
 
-Person(customer, "Покупатель", "B2C клиент")
 
-System_Boundary(c, "MTS Shop Lite") {
-   Container(app, "Клиентское веб-приложение", "html, JavaScript, Angular", "Портал интернет-магазина")
-   Container(offering_service, "Product Offering Service", "Java, Spring Boot", "Сервис управления продуктовым предложением", $tags = "microService")      
-   ContainerDb(offering_db, "Product Catalog", "PostgreSQL", "Хранение продуктовых предложений", $tags = "storage")
-   
-   Container(ordering_service, "Product Ordering Service", "Golang, nginx", "Сервис управления заказом", $tags = "microService")      
-   ContainerDb(ordering_db, "Order Inventory", "MySQL", "Хранение заказов", $tags = "storage")
-    
-   Container(message_bus, "Message Bus", "RabbitMQ", "Транспорт для бизнес-событий")
-   Container(audit_service, "Audit Service", "C#/.NET", "Сервис аудита", $tags = "microService")      
-   Container(audit_store, "Audit Store", "Event Store", "Хранение произошедших события для аудита", $tags = "storage")
+System_Boundary(c, "MTS helloconf") {
+   Container(app, "веб-приложение", "html, JavaScript, Angular", "Портал системы конфиеренций helloconf")
+   Container(facade_service, "Фасадный интеграционный сервис", "Java, Spring Boot", "Сервис управления поиском и хранением данных системы", $tags = "microService")
+   Container(storage_service, "Сервис хранения данных", "Java, Spring Boot", "Сервис ", $tags = "microService")
+   Container(сonference_service, "Сервис расписаний", "Java, Spring Boot", "Сервис ", $tags = "microService")    
+   Container(storage_service_db, "Storage Service", "PostgreSQL", "Сервис ", $tags = "storage")            
+   Container(сonference_service_db, "Storage Service", "PostgreSQL", "Сервис ", $tags = "storage")
+   Container(feedback_service, "Сервис обратной связи", "Java, Spring Boot", "Сервис ", $tags = "microService")    
+   Container(feedback_service_db, "Storage Service", "PostgreSQL", "Сервис ", $tags = "storage")   
+   Container(program_service, "Сервис бронирования конференций", "Java, Spring Boot", "Сервис ", $tags = "microService")    
+   Container(program_service_db, "Storage Service", "PostgreSQL", "Сервис ", $tags = "storage")          
 }
+Person(usr, "Пользователи", "Участники конферениции\Администраторы\Модераторы")
+System_Ext(online, "Сервис онлайн транслирования", "Хранение и запись конференций")
 
-System_Ext(logistics_system, "msLogistix", "Система управления доставкой товаров.")  
+Rel(usr, app, "Работа с порталом", "HTTPS")
+Rel(app,facade_service,"REST")
+Rel(facade_service,сonference_service,"REST")
+Rel(facade_service,storage_service,"REST")
+Rel(facade_service,feedback_service,"REST")
+Rel(facade_service,program_service,"REST")
+Rel(program_service,program_service_db,"SQL")
+Rel(feedback_service,feedback_service_db,"SQL")
+Rel(storage_service,storage_service_db,"SQL")
+Rel(сonference_service,сonference_service_db,"SQL")
 
-Lay_R(offering_service, ordering_service)
-Lay_R(offering_service, logistics_system)
-Lay_D(offering_service, audit_service)
 
-Rel(customer, app, "Оформление заказа", "HTTPS")
-Rel(app, offering_service, "Выбор продуктов для корзины(Продукт):корзина", "JSON, HTTPS")
-
-Rel(offering_service, message_bus, "Отправка заказа(Корзина)", "AMPQ")
-Rel(offering_service, offering_db, "Сохранение продуктового предложения(Продуктовая спецификация)", "JDBC, SQL")
-
-Rel(ordering_service, message_bus, "Получение заказа: Корзина", "AMPQ")
-Rel_U(audit_service, message_bus, "Получение события аудита(Событие)", "AMPQ")
-
-Rel(ordering_service, ordering_db, "Сохранение заказа(Заказ)", "SQL")
-Rel(audit_service, audit_store, "Сохранение события(Событие)")
-Rel(ordering_service, logistics_system, "Доставка(Наряд на доставку):Трекинг", "JSON, HTTP")  
-
-SHOW_LEGEND()
+Rel(c, online, "Транслирование потового видео для онлайн участников", "HTTPS")
 @enduml
 ```
-
-## Список компонентов
-| Компонент             | Роль/назначение                  |
-|:----------------------|:---------------------------------|
-| *Название компонента* | *Описание назначения компонента* |
